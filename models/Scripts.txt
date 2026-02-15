@@ -1,0 +1,22 @@
+-- 1. Create the table schema
+CREATE OR REPLACE TABLE `your_dataset.orders` (
+  order_id INT64,
+  customer_id INT64,
+  order_timestamp TIMESTAMP,
+  total_amount NUMERIC,
+  status STRING,
+  region STRING
+);
+
+-- 2. Generate and Insert 100 dummy records
+INSERT INTO `your_dataset.orders` (order_id, customer_id, order_timestamp, total_amount, status, region)
+SELECT 
+  id AS order_id,
+  CAST(FLOOR(RAND() * 1000) + 1 AS INT64) AS customer_id,
+  TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL -CAST(FLOOR(RAND() * 10000) AS INT64) MINUTE) AS order_timestamp,
+  ROUND(CAST(RAND() * 500 AS NUMERIC), 2) AS total_amount,
+  -- Randomly assign a status
+  ['Shipped', 'Pending', 'Cancelled', 'Delivered'][OFFSET(CAST(FLOOR(RAND() * 4) AS INT64))] AS status,
+  -- Randomly assign a region
+  ['North', 'South', 'East', 'West'][OFFSET(CAST(FLOOR(RAND() * 4) AS INT64))] AS region
+FROM UNNEST(GENERATE_ARRAY(1, 100)) AS id;
